@@ -6,7 +6,7 @@ This uses the measured RSSI between two BLE devices to check if there is a good 
 - A device with bluetooth >= 4.0, this can be smartwatches, smartphones or any other device. 
   Please note that this will connect to the device, leaving the bluetooth of that device inacessible to other devices. Use a device just for this
   
-# How to enable BLE mode on smartphones
+### How to enable BLE mode on smartphones
 - Android (https://source.android.com/devices/bluetooth/ble#location-scanning)
 
 ## Hardware
