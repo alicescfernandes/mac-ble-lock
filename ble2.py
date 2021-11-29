@@ -50,7 +50,7 @@ async def main_1(address):
                         stack = np.array([])
                         result = loginPF.SACLockScreenImmediate()
 
-asyncio.run(main_1(address))
+asyncio.run(main_1())
 
 
 # Mi Phone -> 77F46236-E696-43F9-84B7-BC194A042D28
