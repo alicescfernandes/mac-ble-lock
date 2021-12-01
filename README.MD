@@ -24,3 +24,5 @@ This program was tested with:
 
 ## How to run
 
+### Calibrate
+First you have to calibrate the values. Stand close to the mac with the tag for 1 to 2 minutes, then step away a couple meters and stay in that position for a 1 to 2 minutes. This wil give you the threshold that the mac will use to lock the device

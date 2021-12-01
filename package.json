@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@abandonware/noble": "^1.9.2-15",
+    "commander": "^8.3.0",
+    "noble": "^1.9.1"
+  }
+}

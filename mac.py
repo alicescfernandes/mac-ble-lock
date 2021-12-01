@@ -9,3 +9,17 @@ def is_screen_locked():
 
 def lock_screen():
     return loginPF.SACLockScreenImmediate()
+
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print('missing command')
+        sys.exit()
+
+    input_path = sys.argv[1]
+    if(input_path == "lock"):
+        lock_screen()
+    
+    if(input_path == "check"):
+        print(is_screen_locked())

@@ -7,7 +7,7 @@ stack = np.array([])
 stack_size = 5
 threshold = -65
 
-address="D7CD04BA-C7DF-4669-B682-693024779AB6"
+address="9F9AEDF7-D29B-41E7-B291-765EC3E53C77"
 
 
 def on_tick(rssi):
@@ -26,9 +26,6 @@ def on_tick(rssi):
             stack = np.array([])
             print("mac.lock_screen()")
 
-
-
-
 def on_tick2(rssi):
     print(rssi)
 
@@ -45,5 +42,5 @@ def on_error(err):
 
     if(err == 'disconnected' or err.find("was not found")):
         ble.scan_devices_loop(on_scan_device, on_error,on_found_device)
-    
+
 ble.scan_devices_loop(on_scan_device, on_error,on_found_device)

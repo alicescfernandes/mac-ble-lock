@@ -51,7 +51,8 @@ def scan_devices_loop(onTick, onTickError,onExit, interval_ms = 10_000):
                 device_uuids = []
             except BleakError as err:
                 onTickError(err)        
-            
+    asyncio.run(main())
+
 # TODO: numpy.setdiff1d
 def scan_new_devices():
     print("Turn off the bluetooth of your device")
