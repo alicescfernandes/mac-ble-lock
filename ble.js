@@ -44,27 +44,56 @@ function get_median(arr) {
 	}
 	return median;
 }
-async function run(uuid, awayRssi) {
-	await noble.startScanningAsync([], true); // any service UUID, allow duplicates, listens to all advertismenet ids
+function validateDevice(peripheral, uuid = false, localName = false) {
+	if (uuid != false) {
+		return peripheral.uuid == uuid;
+	}
 
+	if (localName != false) {
+		return peripheral.advertisement.localName == localName;
+		process.exit(0);
+	}
+}
+async function run(uuid = false, localName = false, awayRssi) {
+	await noble.startScanningAsync([], true); // any service UUID, allow duplicates, listens to all advertismenet ids
 	// Listens to advertisement events
+	noble.removeAllListeners();
+
 	noble.on('discover', (peripheral) => {
-		if (peripheral.uuid == uuid) {
+		if (validateDevice(peripheral, uuid, localName)) {
 			lastTrackTime = Date.now();
+			let isSameEvent = false;
+
 			device_data[peripheral.uuid] = device_data[peripheral.uuid] || {
 				last_rssi: 0,
 				current_rssi: 0,
 				rssi_list: [],
+				last_events: [],
 			};
-			device_data[peripheral.uuid].last_rssi = device_data[peripheral.uuid].current_rssi;
-			device_data[peripheral.uuid].current_rssi = peripheral.rssi;
-			if (device_data[peripheral.uuid].rssi_list.length >= STACK_SIZE) {
-				device_data[peripheral.uuid].rssi_list.pop();
+			if (device_data[peripheral.uuid].last_events.length >= STACK_SIZE) {
+				device_data[peripheral.uuid].last_events.shift();
+			}
+			device_data[peripheral.uuid].last_events.push({ date: Date.now(), rssi: peripheral.rssi });
+
+			//Detect if is same event
+			if (device_data[peripheral.uuid].last_events.length > 1) {
+				const last_event = device_data[peripheral.uuid].last_events.length - 1;
+				const previous_event = device_data[peripheral.uuid].last_events.length - 2;
+				isSameEvent =
+					device_data[peripheral.uuid].last_events[last_event].date - device_data[peripheral.uuid].last_events[previous_event].date < 10;
 			}
 
-			device_data[peripheral.uuid].rssi_list.push(peripheral.rssi);
+			if (isSameEvent == false) {
+				device_data[peripheral.uuid].last_rssi = device_data[peripheral.uuid].current_rssi;
+				device_data[peripheral.uuid].current_rssi = peripheral.rssi;
+				if (device_data[peripheral.uuid].rssi_list.length >= STACK_SIZE) {
+					device_data[peripheral.uuid].rssi_list.shift();
+				}
 
-			onRSSIUpdate(peripheral.uuid, awayRssi);
+				device_data[peripheral.uuid].rssi_list.push(peripheral.rssi);
+				onRSSIUpdate(peripheral.uuid, awayRssi);
+			}
+
 			lastTrackTime = Date.now();
 		}
 	});

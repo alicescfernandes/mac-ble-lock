@@ -28,7 +28,7 @@ Other interesting hardware are programable beacons that allow you to set custom 
 
 ## Software
 If you want to test the code without a hardware BLE beacon, it's possible to have a peripheral running on Android and iOS devices.
-
+Note: Android rotates the address of the BLE, so use the name to connect to it
 #### Android
 - https://play.google.com/store/apps/details?id=com.siliconlabs.bledemo
 - https://play.google.com/store/apps/details?id=no.nordicsemi.android.mcp
