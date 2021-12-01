@@ -137,8 +137,28 @@ function calibrate(uuid) {
 	}, 1_000);
 }
 
+function debug(uuid) {
+	console.log('Stand close to the device');
+	noble.on('stateChange', (state) => {
+		if (state === 'poweredOn') {
+			noble.startScanning([], true); // any service UUID, allow duplicates, listens to all advertismenet ids
+		}
+	});
+	if (noble.state === 'poweredOn') {
+		noble.startScanning([], true); // any service UUID, allow duplicates, listens to all advertismenet ids
+	}
+
+	// Listens to advertisement events
+	noble.on('discover', (peripheral) => {
+		if (peripheral.uuid == uuid) {
+			console.log(peripheral.rssi);
+		}
+	});
+}
+
 module.exports = {
 	scan_devices,
 	calibrate,
 	run,
+	debug,
 };
