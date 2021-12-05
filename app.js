@@ -22,6 +22,10 @@ const options = program.opts();
 			console.log('Invalid threshold, must be lower than -50');
 			process.exit();
 		}
+		if (!options.uuid && !options.localName) {
+			console.log('Provide a name or uuid of the device');
+			process.exit();
+		}
 
 		if (options.active) {
 			await run_active(options.uuid, options.localName, options.threshold);
