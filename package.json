@@ -1,7 +1,24 @@
 {
   "dependencies": {
     "@abandonware/noble": "^1.9.2-15",
-    "commander": "^8.3.0",
-    "noble": "^1.9.1"
-  }
+    "commander": "^8.3.0"
+  },
+  "bin": {
+    "ble-lock": "./app.js"
+  },
+  "name": "ble-lock",
+  "description": "This uses the measured RSSI between two BLE devices to check if there is a good connection or not. If there is a bad connection, then the device is either distant or there are objects blocking the signal. This is not an exact science, so a median is used to get an aproximate value of the current RSSI. A better way would be using Kalman filters though",
+  "version": "1.0.0",
+  "main": "app.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alicescfernandes/mac-ble-lock.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alicescfernandes/mac-ble-lock/issues"
+  },
+  "homepage": "https://github.com/alicescfernandes/mac-ble-lock#readme"
 }

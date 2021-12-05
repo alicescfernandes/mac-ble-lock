@@ -1,6 +1,7 @@
+#!/usr/bin/env node
+
 const { program } = require('commander');
 const { scan_devices, calibrate, run, debug, run_active } = require('./ble');
-program.version('0.0.1');
 
 program
 	.option('--calibrate', 'calibrate the ble rssi values', 'first_time')

@@ -44,8 +44,28 @@ Note: Android rotates the address of the BLE, so use the name to connect to it
 
 ## How to run
 
-### Calibrate
-First you have to calibrate the values. Stand close to the mac with the tag for 1 to 2 minutes, then step away a couple meters and stay in that position for a 1 to 2 minutes. This wil give you the threshold that the mac will use to lock the device
+### Install the package
+1. `git clone <this repo>`
+1. `npm install`
+1. `npm link`
 
-### Use
-After 
+### Run on the CLI
+First you must check which devices are advertising
+```js
+ble-lock --calibrate
+```
+
+After getting the device. Either the name or UUID must be send. Depending on the device, the UUID can change every now and then.
+```js
+ble-lock --start --local-name <name> --uuid <uuid>
+```
+The program defaults to passive mode, but since passive mode can be slower, if you want to use the active mode, pass the flag to the program. In the active mode (and depending on the device) the program can disconnect from it, so the passive mode won't connect to the device
+```js
+ble-lock --start --local-name <name> --uuid <uuid> --active true
+```
+
+Optionally, you can calibrate the values before running the program. Use the command below and follow the instructions on the terminal. At the end you will get two values: the "near" rssi and the "away" rssi. You can use the "away" threshold as an input on the start command
+```js
+ble-lock --calibrate --local-name <name> --uuid <uuid>
+ble-lock --start --local-name <name> --uuid <uuid> --threshold -80
+```
