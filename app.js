@@ -31,13 +31,12 @@ const options = program.opts();
 	} else if (options.debug) {
 		debug(options.debug);
 	} else if (options.calibrate) {
-		if (options.calibrate == 'first_time') {
+		if (options.uuid || options.localName) {
+			console.log('Calibrating for device ', options.uuid || options.localName);
+			calibrate(options.uuid, options.localName);
+		} else {
 			console.log('scan all devices and print it');
 			scan_devices();
-		} else {
-			console.log('Calibrating for device ', options.calibrate);
-
-			calibrate(options.calibrate);
 		}
 	}
 })();

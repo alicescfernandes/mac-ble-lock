@@ -198,7 +198,7 @@ function scan_devices() {
 	}, 10_000);
 }
 
-function calibrate(uuid) {
+function calibrate(uuid, localName) {
 	const start = Date.now();
 	console.log('Stand close to the device');
 	noble.startScanningAsync([], true); // any service UUID, allow duplicates, listens to all advertismenet ids
@@ -207,7 +207,7 @@ function calibrate(uuid) {
 	let mode = 'near';
 	// Listens to advertisement events
 	noble.on('discover', (peripheral) => {
-		if (peripheral.uuid == uuid) {
+		if (validateDevice(peripheral, uuid, localName)) {
 			if (mode == 'near') {
 				near_rssi.push(peripheral.rssi);
 			} else if (mode == 'away') {
