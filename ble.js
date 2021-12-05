@@ -1,6 +1,7 @@
 const noble = require('@abandonware/noble');
 const { exec } = require('child_process');
 const { Console } = require('console');
+const { tagFactory } = require('./tags/known-tags');
 const STACK_SIZE = 3;
 const device_data = {};
 
@@ -11,9 +12,9 @@ function lock_device() {
 let lastTrackTime = Date.now();
 let totalRetryAttempts = 2;
 let currentRetryAttempts = totalRetryAttempts;
-let scanTimeout = 4_000;
+let scanTimeout = 2_000;
 
-function onRSSIUpdate(uuid, threshold = -70) {
+function onRSSIUpdate(uuid, threshold = -70, lockCB = () => {}) {
 	if (currentRetryAttempts != totalRetryAttempts) {
 		currentRetryAttempts = totalRetryAttempts;
 	}
@@ -23,6 +24,7 @@ function onRSSIUpdate(uuid, threshold = -70) {
 	if (Math.abs(rssi) > Math.abs(threshold)) {
 		console.log('Device lock due to rssi threshold, ', rssi);
 		lock_device();
+		lockCB();
 	}
 
 	console.log({
@@ -44,6 +46,7 @@ function get_median(arr) {
 	}
 	return median;
 }
+
 function validateDevice(peripheral, uuid = false, localName = false) {
 	if (uuid != false) {
 		return peripheral.uuid == uuid;
@@ -54,6 +57,24 @@ function validateDevice(peripheral, uuid = false, localName = false) {
 		process.exit(0);
 	}
 }
+
+function handle_device_timeout() {
+	setInterval(() => {
+		if (Date.now() - lastTrackTime > scanTimeout) {
+			console.log(Date.now() - lastTrackTime, scanTimeout);
+			console.log('Device timed out. Retry connection');
+			if (!currentRetryAttempts) {
+				console.log('Lock device due to timeout. Retry connection');
+				lock_device();
+				currentRetryAttempts = totalRetryAttempts;
+			} else {
+				currentRetryAttempts--;
+				lastTrackTime = Date.now();
+			}
+		}
+	}, 2_000);
+}
+
 async function run(uuid = false, localName = false, awayRssi) {
 	await noble.startScanningAsync([], true); // any service UUID, allow duplicates, listens to all advertismenet ids
 	// Listens to advertisement events
@@ -98,20 +119,67 @@ async function run(uuid = false, localName = false, awayRssi) {
 		}
 	});
 
-	//Handle devices out of reach
-	setInterval(() => {
-		if (Date.now() - lastTrackTime > scanTimeout) {
-			console.log('Device timed out. Retry connection');
-			if (!currentRetryAttempts) {
-				console.log('Lock device due to timeout. Retry connection');
-				lock_device();
-				currentRetryAttempts = totalRetryAttempts;
-			} else {
-				currentRetryAttempts--;
+	handle_device_timeout();
+}
+
+async function run_active(uuid = false, localName = false, awayRssi = -70) {
+	await noble.startScanningAsync([], false); // any service UUID, allow duplicates, listens to all advertismenet ids
+	// Listens to advertisement events
+	noble.removeAllListeners();
+
+	noble.on('discover', async (peripheral) => {
+		if (validateDevice(peripheral, uuid, localName)) {
+			await noble.stopScanningAsync();
+			await peripheral.connectAsync();
+			console.log('connected');
+
+			device_data[peripheral.uuid] = device_data[peripheral.uuid] || {
+				last_rssi: 0,
+				current_rssi: 0,
+				rssi_list: [],
+				last_events: [],
+			};
+
+			const knownTag = await tagFactory(localName, peripheral);
+			await knownTag.onConnect();
+
+			peripheral.updateRssi();
+			setInterval(() => {
+				peripheral.updateRssi();
+			}, 1_000);
+
+			peripheral.on('rssiUpdate', (rssi) => {
+				//Collect Median
+				if (device_data[peripheral.uuid].last_events.length >= STACK_SIZE) {
+					device_data[peripheral.uuid].last_events.shift();
+				}
+				device_data[peripheral.uuid].last_events.push({ date: Date.now(), rssi: rssi });
+
+				device_data[peripheral.uuid].last_rssi = device_data[peripheral.uuid].current_rssi;
+				device_data[peripheral.uuid].current_rssi = rssi;
+				if (device_data[peripheral.uuid].rssi_list.length >= STACK_SIZE) {
+					device_data[peripheral.uuid].rssi_list.shift();
+				}
+
+				device_data[peripheral.uuid].rssi_list.push(rssi);
+				onRSSIUpdate(peripheral.uuid, awayRssi, () => {
+					//knownTag.sendAlert();
+				});
+
 				lastTrackTime = Date.now();
-			}
+			});
+
+			// TODO: Handle connect/disconnect
+			peripheral.on('disconnect', () => {
+				console.log('Device Disconnected. Reconnect');
+				process.exit(0);
+			});
+
+			handle_device_timeout(lastTrackTime, scanTimeout);
 		}
-	}, 2_000);
+	});
+
+	//Handle devices out of reach
 }
 
 function scan_devices() {
@@ -189,5 +257,6 @@ module.exports = {
 	scan_devices,
 	calibrate,
 	run,
+	run_active,
 	debug,
 };

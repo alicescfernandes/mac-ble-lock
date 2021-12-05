@@ -1,5 +1,5 @@
 const { program } = require('commander');
-const { scan_devices, calibrate, run, debug } = require('./ble');
+const { scan_devices, calibrate, run, debug, run_active } = require('./ble');
 program.version('0.0.1');
 
 program
@@ -8,7 +8,8 @@ program
 	.option('--threshold <int>', 'Set the rssi threshold', -70)
 	.option('--debug', 'debug uuid')
 	.option('--local-name <name> ', 'debug uuid')
-	.option('--uuid <uuid> ', 'debug uuid');
+	.option('--uuid <uuid> ', 'debug uuid')
+	.option('--active <uuid> ', 'active mode', false);
 
 program.parse(process.argv);
 
@@ -21,7 +22,11 @@ const options = program.opts();
 			process.exit();
 		}
 
-		await run(options.uuid, options.localName, options.threshold);
+		if (options.active) {
+			await run_active(options.uuid, options.localName, options.threshold);
+		} else {
+			await run(options.uuid, options.localName, options.threshold);
+		}
 	} else if (options.debug) {
 		debug(options.debug);
 	} else if (options.calibrate) {
