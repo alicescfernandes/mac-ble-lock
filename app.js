@@ -10,7 +10,7 @@ program
 	.option('--debug', 'debug uuid')
 	.option('--local-name <name> ', 'debug uuid')
 	.option('--uuid <uuid> ', 'debug uuid')
-	.option('--active <uuid> ', 'active mode', false);
+	.option('--active <mode>', 'active mode', false);
 
 program.parse(process.argv);
 
@@ -27,6 +27,7 @@ const options = program.opts();
 			process.exit();
 		}
 
+		console.log(options.active);
 		if (options.active) {
 			await run_active(options.uuid, options.localName, options.threshold);
 		} else {

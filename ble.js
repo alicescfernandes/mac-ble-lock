@@ -21,7 +21,7 @@ function onRSSIUpdate(uuid, threshold = -70, lockCB = () => {}) {
 	let rssi = device_data[uuid].current_rssi;
 	let median_rssi = get_median(device_data[uuid].rssi_list);
 
-	if (Math.abs(rssi) > Math.abs(threshold)) {
+	if (Math.abs(median_rssi) > Math.abs(threshold)) {
 		console.log('Device lock due to rssi threshold, ', rssi);
 		lock_device();
 		lockCB();
@@ -38,11 +38,13 @@ function onRSSIUpdate(uuid, threshold = -70, lockCB = () => {}) {
 function get_median(arr) {
 	const array_length = arr.length;
 	median = Math.floor(array_length / 2);
+	arr_copy = Array.from(arr);
+	arr_copy.sort();
 	if (array_length % 2 == 0) {
 		const next_value = median + 1 > array_length ? median + 1 : median - 1;
-		median = (arr[median] + arr[next_value]) / 2;
+		median = (arr_copy[median] + arr_copy[next_value]) / 2;
 	} else {
-		median = arr[median];
+		median = arr_copy[median];
 	}
 	return median;
 }
@@ -141,7 +143,7 @@ async function run_active(uuid = false, localName = false, awayRssi = -70) {
 			};
 
 			const knownTag = await tagFactory(localName, peripheral);
-			await knownTag.onConnect();
+			knownTag.onConnect();
 
 			peripheral.updateRssi();
 			setInterval(() => {
