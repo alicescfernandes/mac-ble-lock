@@ -52,21 +52,21 @@ Note: Android rotates the address of the BLE, so use the name to connect to it
 
 ### Run on the CLI
 First you must check which devices are advertising
-```js
+```sh
 ble-lock --calibrate
 ```
 
 After getting the device. Either the name or UUID must be send. Depending on the device, the UUID can change every now and then.
-```js
+```sh
 ble-lock --start --local-name <name> --uuid <uuid>
 ```
 The program defaults to passive mode, but since passive mode can be slower, if you want to use the active mode, pass the flag to the program. In the active mode (and depending on the device) the program can disconnect from it, so the passive mode won't connect to the device
-```js
+```sh
 ble-lock --start --local-name <name> --uuid <uuid> --active true
 ```
 
 Optionally, you can calibrate the values before running the program. Use the command below and follow the instructions on the terminal. At the end you will get two values: the "near" rssi and the "away" rssi. You can use the "away" threshold as an input on the start command
-```js
+```sh
 ble-lock --calibrate --local-name <name> --uuid <uuid>
 ble-lock --start --local-name <name> --uuid <uuid> --threshold -80
 ```
