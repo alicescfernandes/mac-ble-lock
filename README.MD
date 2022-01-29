@@ -22,6 +22,7 @@ This program was tested with:
 Other interesting hardware are programable beacons that allow you to set custom advertising intervals
 - FeasyBeacon
 - RadBeacon
+- Espruino Puck (a JS programmable board with BLE built-in)
 
 ### How to enable BLE mode on smartphones
 - Android (https://source.android.com/devices/bluetooth/ble#location-scanning)
